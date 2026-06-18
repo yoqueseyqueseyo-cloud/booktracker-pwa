@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>BookTracker</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2">
+
+
+    <!--ESTILO VISUAL!!!!!!!!!!!!-->
+    <style>
+        body {
+            margin: 0;
+            margin-left: 20px;
+            padding: 0;
+            font-family: "Inter", Arial, sans-serif;
+
+            /* ⭐ Fondo degradado beige-rosado elegante */
+            background: linear-gradient(135deg, #DEC28C, #77427D, #DEC28C);
+            background-attachment: fixed;
+            color: #2d3436;
+
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            margin-top: 40px;
+            margin-left: 20px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            background: white;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 20px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .contenedor-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 450px;
+            margin-bottom: 30px;
+        }
+
+        .tabla-libros {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .tabla-libros th, .tabla-libros td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tabla-contenedor {
+            min-width: 1500px;
+            max-width: 1500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #tabla-libros {
+            margin: 0 auto;
+            width: 100%;
+            border-collapse: separate;   /* ⭐ permite separación */
+            border-spacing: 0 10px;      /* ⭐ separa filas */
+        }
+
+        #tabla-libros th,
+        #tabla-libros td {
+            padding: 12px 18px;          /* ⭐ más espacio interno */
+            text-align: left;
+        }
+
+        #tabla-libros th {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        #tabla-libros td + td,
+        #tabla-libros th + th {
+            border-left: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .tabla-libros tr:hover {
+            background: #f0f0f0;
+        }
+
+        #tabla-libros tr {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            overflow: hidden; /* ⭐ hace que la línea se vea */
+            position: relative;
+        }
+
+        #tabla-libros tr::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0,0,0,0.15);  /* ⭐ línea visible */
+        }
+
+        #tabla-libros tr:last-child {
+            border-bottom: none;   /* quita la última línea */
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-left: 40px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            border: none;
+            background: #dfe6e9;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .tab:hover {
+            background: #b2bec3;
+        }
+
+        .tab.active {
+            background-color: #d79aaa;   /* rosa empolvado suave */
+            color: white;
+            font-weight: bold;
+        }
+
+        .pestaña {
+            display: none;
+        }
+
+        .pestaña.visible {
+            display: block;
+        }
+
+        /* Contenedor principal */
+        .inicio-contenedor {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 150, 160, 0.25); /* borde rosado más oscuro */
+            color: #2d3436;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            max-width: 650px;
+            margin: 40px auto;
+            animation: fadeIn 0.6s ease;
+        }
+
+        /* Imagen superior */
+        .inicio-imagen {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        /* Título */
+        .inicio-titulo {
+            font-size: 34px;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        /* Subtítulo */
+        .inicio-subtitulo {
+            font-size: 18px;
+            color: #636e72;
+            margin-bottom: 30px;
+        }
+
+        /* Botones */
+        .inicio-botones {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-inicio {
+            padding: 12px 22px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #5B457D;
+            color: white;
+            transition: 0.25s;
+        }
+
+        .btn-inicio:hover {
+            background: #e7b3c4;
+            transform: translateY(-2px);
+        }
+
+        .btn-accion {
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #d79aaa;   /* rosa empolvado suave */
+            color: white;
+            transition: 0.2s;
+        }
+
+        .btn-accion:hover {
+            background: #e7b3c4;
+        }
+
+        /* Animación suave */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .formulario-libro {
+            max-width: 450px;          /* ⭐ tamaño ideal */
+            margin: 0 auto;            /* ⭐ centra horizontalmente */
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .formulario-editar {
+            max-width: 450px;          /* ⭐ tamaño ideal */
+            margin: 0 auto;            /* ⭐ centra horizontalmente */
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.65);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .buscador-contenedor {
+            position: relative;
+            width: 300px;              /* tamaño del buscador */
+            margin: 10px auto;         /* centrado */
+        }
+
+        #buscador {
+            width: 100%;
+            padding: 10px 12px 10px 36px; /* espacio para la lupa */
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            background: #fafafa;
+        }
+
+        #buscador:focus {
+            border-color: #6a5acd;
+            background: white;
+            box-shadow: 0 0 6px rgba(106, 90, 205, 0.3);
+            outline: none;
+        }
+        #buscador-libros {
+            width: 100%;
+            padding: 10px 12px 10px 36px; /* espacio para la lupa */
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            background: #fafafa;
+        }
+
+        #buscador-libros:focus {
+            border-color: #6a5acd;
+            background: white;
+            box-shadow: 0 0 6px rgba(106, 90, 205, 0.3);
+            outline: none;
+        }
+
+        .icono-lupa {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .sugerencias-lista {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 10;
+            display: none; /* oculto por defecto */
+        }
+
+        .sugerencias-lista li {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .sugerencias-lista li:hover {
+            background: #f0f0f0;
+        }
+        .catalogo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .tarjeta-libro {
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform .2s;
+        }
+
+        .tarjeta-libro:hover {
+            transform: scale(1.05);
+        }
+
+        .portada img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .sin-portada {
+            width: 100%;
+            height: 180px;
+            background: #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+
+        .titulo {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .tarjeta-libro img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .detalle-portada {
+            width: 200px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+
+    </style>
+</head>
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+    }
+</script>
+
+<body onLoad="cargarSelects()">
+
+<!-- BOTONES CABECERA!!!!!!!!!!!!!!! -->
+<div class="tabs">
+    <button class="tab" data-tab="p-inicio" onclick="mostrarPestaña('p-inicio')">Inicio</button>
+    <button class="tab" data-tab="p-tabla" onclick="irATabla(); cargarLibros();">BookTracker — Libros</button>
+    <button class="tab" data-tab="p-add" onclick="mostrarPestaña('p-add')">Añadir libro</button>
+    <button class="tab" data-tab="p-libros" onclick="mostrarPestaña('p-libros')">Libros</button>
+</div>
+
+
+<!-- PESTAÑA DE INICIO!!!!!!!!!!!!! -->
+<div id="p-inicio" class="pestaña visible">
+
+    <div class="inicio-contenedor">
+        <h1 class="inicio-titulo">📚 Mi Biblioteca</h1>
+        <p class="inicio-subtitulo">Gestiona tus libros de forma sencilla y bonita</p>
+
+        <div class="inicio-botones">
+            <button class="btn-inicio" onclick="mostrarPestaña('p-add')">➕ Añadir libro</button>
+            <button class="btn-inicio" onclick="mostrarPestaña('p-tabla'); cargarLibros();">📖 Ver libros</button>
+        </div>
+    </div>
+
+</div>
+
+
+<!--PESTAÑA TABLA DE LIBROS!!!!!!!!!!!!!!!!!!!!!! -->
+<div id="p-tabla" class="pestaña">
+    <div class="buscador-contenedor">
+        <span class="icono-lupa">🔍</span>
+        <input
+                type="text"
+                id="buscador"
+                placeholder="Buscar libros..."
+        />
+        <ul id="sugerencias" class="sugerencias-lista"></ul>
+
+    </div>
+    <div id="consultas">
+        <button class= "btn-accion" onclick="consultaTotalLibros()">Total de libros</button>
+        <button class= "btn-accion" onclick="consultaPendientes()">Libros pendientes</button>
+        <select class= "buscador-contenedor" onchange="consultaPorSagaTipo(this.value)">
+            <option value="">-- Tipo de saga --</option>
+            <option value="autoconclusivo">Autoconclusivo</option>
+            <option value="bilogia">Bilogía</option>
+            <option value="trilogia">Trilogía</option>
+            <option value="tetralogia">Tetralogía</option>
+            <option value="saga">Saga</option>
+            <option value="serie">Serie</option>
+            <option value="spin off">Spin off</option>
+        </select>
+    </div>
+
+    <h1>BookTracker — Libros</h1>
+    <div id="resultado-consulta"></div>
+
+    <div class="tabla-contenedor">
+<table id="tabla-libros">
+    <thead>
+    <tr>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>Editorial</th>
+        <th>Páginas</th>
+        <th>Formato</th>
+        <th>Estado</th>
+        <th>Saga</th>
+        <th>Nombre de la saga</th>
+        <th>Orden en saga</th>
+        <th>Puntuacion</th>
+        <th>Inicio</th>
+        <th>Fin</th>
+        <th>Acciones</th>
+        <th> </th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+</div>
+</div>
+
+
+<!--PESTAÑA AÑADIR Y EDITAR -->
+<div id="p-add" class="pestaña">
+
+    <!--PESTAÑA AÑADIR!!!!!!!!!!!!!!!-->
+    <div id="form-crear">
+        <div class="formulario-libro">
+    <h2 id="titulo-form">Añadir libro</h2>
+
+    <label>Portada</label>
+    <input id="portada" type="file" accept="image/*">
+
+            <label>Título</label>
+    <input id="titulo" type="text">
+
+    <label>Páginas</label>
+    <input id="paginas" type="number">
+
+            <label>Estado</label>
+    <select id="estado">
+        <option value="leido">Leído</option>
+        <option value="leyendo">Leyendo</option>
+        <option value="pusado">Pausado</option>
+        <option value="abandonado">Abandonado</option>
+        <option value="pendiente">Pendiente</option>
+    </select>
+
+    <label>Autor</label>
+    <input id="autor" type="text">
+
+
+    <label>Tipo de saga</label>
+    <select id="sagaTipo">
+        <option value="autoconclusivo">Autoconclusivo</option>
+        <option value="bilogia">Bilogía</option>
+        <option value="trilogia">Trilogía</option>
+        <option value="tetralogia">Tetralogía</option>
+        <option value="saga">Saga</option>
+        <option value="serie">Serie</option>
+        <option value="spin off">Spin off</option>
+    </select>
+
+    <label>Nombre de la saga (opcional)</label>
+    <input id="sagaNombre" type="text">
+    <label>Orden en la saga (opcional)</label>
+    <input id="sagaOrden" type="number" min="1" placeholder="Solo si es autococlusivo">
+
+    <label>Editorial</label>
+    <input id="editorial" type="text">
+
+    <label>Formato</label>
+            <select id="formato">
+                <option value="tapa dura"> Tapa dura</option>
+                <option value="tapa blanda"> Tapa blanda</option>
+                <option value="bolsillo"> Edición bolsillo</option>
+                <option value="especial"> Edición especial</option>
+            </select>
+
+    <label>Puntuación</label>
+    <input id="puntuacion" type="number" min="1" max="5" step="0.1">
+
+    <label>Fecha inicio</label>
+    <input id="fecha-inicio" type="date">
+
+    <label> Fecha fin</label>
+    <input id="fecha-fin" type="date">
+
+    <!-- De momento solo estos campos para probar -->
+    <button id="btn-guardar" class="btn-accion" onclick="crearLibro()">Añadir libro</button>
+    </div>
+    </div>
+
+    <!--OPCIÓN EDITAR!!!!!!!!!!!!!!!!-->
+    <div id="form-editar" style="display:none;">
+        <div class="formulario-editar">
+    <h2>Editar libro</h2>
+
+            <label>Portada (URL)</label>
+    <input id="edit-portada" type="file" accept="image/*">
+    <img id="edit-portada-preview" class="detalle-portada" style="max-width: 200px; margin-top: 10px;">
+
+    <label>ID</label>
+    <input id="edit-id" type="number" readonly>
+
+    <label>Título</label>
+    <input id="edit-titulo" type="text">
+
+    <label>Páginas</label>
+    <input id="edit-paginas" type="number">
+
+    <label>Estado</label>
+    <select id="edit-estado">
+        <option value="leido">Leído</option>
+        <option value="leyendo">Leyendo</option>
+        <option value="pausado">Pausado</option>
+        <option value="abandonado">Abandonado</option>
+        <option value="pendiente">Pendiente</option>
+    </select>
+
+    <label>Autor</label>
+    <input id = "edit-autor" type ="text">
+
+    <label>Editorial</label>
+    <input id="edit-editorial" type = "text">
+
+    <label>Tipo de saga</label>
+    <select id="edit-sagaTipo">
+        <option value="autoconclusivo">Autoconclusivo</option>
+        <option value="bilogia">Bilogía</option>
+        <option value="trilogia">Trilogía</option>
+        <option value="tetralogia">Tetralogía</option>
+        <option value="saga">Saga</option>
+        <option value="serie">Serie</option>
+        <option value="spin off">Spin off</option>
+    </select>
+
+    <label>Nombre de la saga (opcional)</label>
+    <input id="edit-sagaNombre" type="text">
+
+    <label>Orden en la saga</label>
+    <input id="edit-sagaOrden" type="number" min="1">
+
+    <label>Formato</label>
+            <select id="edit-formato">
+                <option value="tapa dura"> Tapa dura</option>
+                <option value="tapa blanda"> Tapa blanda</option>
+                <option value="bolsillo"> Edición bolsillo</option>
+                <option value="especial"> Edición especial</option>
+            </select>
+
+    <label>Puntuación</label>
+    <input id="edit-puntuacion" type="number" min="1" max="5" step="0.1">
+
+    <label>Fecha inicio</label>
+    <input id="edit-fecha-inicio" type="date">
+
+    <label> Fecha fin</label>
+    <input id="edit-fecha-fin" type="date">
+
+        <button id="btn-guardar-cambios" class="btn-accion">Guardar cambios</button>
+        <button id="btn-cancelar-edicion" class="btn-accion">Cancelar</button>
+
+        </div>
+    </div>
+</div>
+
+<div id="p-libros" class="pestaña">
+    <h2>Mis libros</h2>
+    <div class="buscador-contenedor">
+        <span class="icono-lupa">🔍</span>
+        <input
+                type="text"
+                id="buscador-libros"
+                placeholder="Buscar libros..."
+        />
+        <ul id="sugerencias-libros" class="sugerencias-lista"></ul>
+
+    </div>
+    <div id="catalogo-libros" class="catalogo"></div>
+
+</div>
+<div id="p-detalle" class="pestaña">
+    <div id="detalle-libro"></div>
+</div>
+
+
+
+</body>
+
+<script>
+    const API = "http://localhost:8080";
+    let pestañaActual = "p-inicio";
+    let pestañaAnterior = "p-inicio";
+    let libros = [];
+    fetch("http://localhost:8080/libros")
+            .then(r => r.json())
+        .then(data => {
+            libros = data;
+            cargarLibros();   // tu tabla normal
+        });
+
+    function irATabla() {
+        mostrarPestaña('p-tabla');
+        document.getElementById("resultado-consulta").innerHTML = "";
+    }
+
+    function convertirImagenABase64(file) {
+        return new Promise((resolve, reject) => {
+            const lector = new FileReader();
+            lector.onload = () => resolve(lector.result);
+            lector.onerror = reject;
+            lector.readAsDataURL(file);
+        });
+    }
+
+    function mostrarDetalleLibro(id) {
+        const libro = libros.find(l => l.id === id);
+        const cont = document.getElementById("detalle-libro");
+
+        cont.innerHTML = `
+        <h2>${libro.titulo}</h2>
+
+        ${libro.portada
+            ? `<img src="${libro.portada}" class="detalle-portada">`
+            : `<div class="sin-portada">Sin portada</div>`
+        }
+
+        <p><strong>Autor:</strong> ${libro.autor?.name ?? ""}</p>
+        <p><strong>Editorial:</strong> ${libro.editorial?.name ?? ""}</p>
+        <p><strong>Estado:</strong> ${libro.estado}</p>
+        <p><strong>Puntuación:</strong> ${libro.puntuacion ?? ""}</p>
+        <p><strong>Saga tipo:</strong> ${libro.sagaTipo ?? ""}</p>
+        <p><strong>Saga nombre:</strong> ${libro.sagaNombre ?? ""}</p>
+        <p><strong>Orden:</strong> ${libro.sagaOrden ?? ""}</p>
+        <p><strong>Páginas:</strong> ${libro.paginas ?? ""}</p>
+        <p><strong>Formato:</strong> ${libro.formato ?? ""}</p>
+        <p><strong>Fecha inicio:</strong> ${libro.fechaInicio ?? ""}</p>
+        <p><strong>Fecha fin:</strong> ${libro.fechaFin ?? ""}</p>
+
+        <button class="btn-accion" onclick="editarLibro(${libro.id}, '${libro.titulo}', ${libro.paginas}, ${libro.leido})">Editar</button>
+        <button class="btn-accion" onclick="borrarLibro(${libro.id}); mostrarPestaña('p-libros')">Borrar</button>
+        <button class= "btn-accion" onclick="mostrarPestaña('p-libros')">Volver</button>
+    `;
+
+        mostrarPestaña('p-detalle');
+    }
+
+
+    async function mostrarCatalogoLibros() {
+        const res = await fetch(`${API}/libros`);
+        libros = await res.json();
+
+        const contenedor = document.getElementById("catalogo-libros");
+        contenedor.innerHTML = "";
+
+        libros.forEach(libro => {
+            const tarjeta = document.createElement("div");
+            tarjeta.classList.add("tarjeta-libro");
+
+            tarjeta.innerHTML = `
+            <div class="portada">
+                ${libro.portada
+                ? `<img src="${libro.portada}" alt="Portada">`
+                : `<div class="sin-portada">Sin portada</div>`
+            }
+            </div>
+            <p class="titulo">${libro.titulo}</p>
+        `;
+
+            tarjeta.onclick = () => mostrarDetalleLibro(libro.id);
+
+            contenedor.appendChild(tarjeta);
+        });
+    }
+
+    document.getElementById("buscador").addEventListener("input", mostrarSugerencias);
+
+    function mostrarSugerencias() {
+        const texto = document.getElementById("buscador").value.toLowerCase();
+        const lista = document.getElementById("sugerencias");
+
+        if (texto.length === 0) {
+            lista.style.display = "none";
+            return;
+        }
+
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+        let autores = new Set();
+
+        filas.forEach(fila => {
+            const columnas = fila.querySelectorAll("td");
+            const autor = columnas[1].textContent.trim();
+
+            if (autor.toLowerCase().includes(texto)) {
+                autores.add(autor);
+            }
+        });
+
+        lista.innerHTML = "";
+
+        autores.forEach(autor => {
+            const li = document.createElement("li");
+            li.textContent = autor;
+
+            li.onclick = () => {
+                document.getElementById("buscador").value = autor;
+                lista.style.display = "none";
+                consultaPorAutor(autor);
+            };
+
+            lista.appendChild(li);
+        });
+
+        lista.style.display = autores.size > 0 ? "block" : "none";
+    }
+
+    document.getElementById("buscador-libros").addEventListener("input", filtrarCatalogo);
+
+    function filtrarCatalogo() {
+        const texto = document.getElementById("buscador-libros").value.toLowerCase();
+        const tarjetas = document.querySelectorAll("#catalogo-libros .tarjeta-libro");
+
+        tarjetas.forEach(tarjeta => {
+            const contenido = tarjeta.textContent.toLowerCase();
+            tarjeta.style.display = contenido.includes(texto) ? "" : "none";
+        });
+    }
+    document.getElementById("buscador-libros").addEventListener("input", mostrarSugerenciasLibros);
+
+    function mostrarSugerenciasLibros() {
+        const texto = document.getElementById("buscador-libros").value.toLowerCase();
+        const lista = document.getElementById("sugerencias-libros");
+        lista.innerHTML = "";
+
+        if (texto.length < 2) return;
+
+        const coincidencias = libros.filter(l =>
+            l.titulo.toLowerCase().includes(texto)
+        );
+
+        coincidencias.slice(0, 5).forEach(l => {
+            const li = document.createElement("li");
+            li.textContent = l.titulo;
+            li.onclick = () => {
+                document.getElementById("buscador-libros").value = l.titulo;
+                lista.innerHTML = "";
+                filtrarCatalogo();
+            };
+            lista.appendChild(li);
+        });
+    }
+
+
+    function consultaTotalLibros() {
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+        const total = filas.length;
+        filas.forEach(fila => {
+            fila.style.display = ""; // mostrar todas las filas
+        });
+        document.getElementById("resultado-consulta").textContent =
+            `Tienes ${total} libros registrados.`;
+        mostrarPestaña("p-tabla");
+    }
+
+    function consultaPendientes() {
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+
+        let contador = 0;
+
+        filas.forEach(fila => {
+            const columnas = fila.querySelectorAll("td");
+            const estado = columnas[5].textContent.toLowerCase();
+
+            if (estado === "pendiente") {
+                fila.style.display = ""; // mostrar
+                contador++;
+            } else {
+                fila.style.display = "none"; // ocultar
+            }
+        });
+
+        // Mostrar mensaje arriba de la tabla
+        const resultado = document.getElementById("resultado-consulta");
+        resultado.innerHTML = `
+        <p>Tienes <strong>${contador}</strong> libros pendientes.</p>
+    `;
+
+        // Cambiar a la pestaña de la tabla
+        mostrarPestaña('p-tabla');
+    }
+
+    function consultaPorSagaTipo(tipo) {
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+
+        let contador = 0;
+
+        filas.forEach(fila => {
+            const columnas = fila.querySelectorAll("td");
+            const sagaTipo = columnas[6].textContent.toLowerCase(); // AJUSTA el índice si tu columna es otra
+            if (tipo === "" || tipo === null) {
+                fila.style.display = "";
+                return;
+            }
+
+            // ⭐ Filtrar normalmente
+            if (sagaTipo === tipo.toLowerCase()) {
+                fila.style.display = "";
+                contador++;
+            } else {
+                fila.style.display = "none";
+            }
+        });
+
+        // Mostrar mensaje arriba de la tabla
+        const resultado = document.getElementById("resultado-consulta");
+        resultado.innerHTML = `
+        <p>Hay <strong>${contador}</strong> libros del tipo de saga <strong>${tipo}</strong>.</p>
+    `;
+
+        // Cambiar a la pestaña de la tabla
+        mostrarPestaña('p-tabla');
+    }
+
+
+
+
+    function consultaPorAutor(nombre) {
+        //const nombre = document.getElementById("consulta-autor").value.trim().toLowerCase();
+        const resultado = document.getElementById("resultado-consulta");
+
+        if (!nombre) {
+            resultado.textContent = "Escribe un autor para buscar.";
+            return;
+        }
+
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+
+        let contador = 0;
+        let lista = [];
+
+        filas.forEach(fila => {
+            const columnas = fila.querySelectorAll("td");
+            const autor = columnas[1].textContent.toLowerCase();
+            const titulo = columnas[0].textContent;
+
+            if (autor.includes(nombre)) {
+                fila.style.display = "";
+                contador++;
+                //lista.push(titulo);
+            } else {
+                fila.style.display = "none";
+            }
+        });
+
+        if (contador === 0) {
+            resultado.textContent = `No tienes libros de "${nombre}".`;
+            return;
+        }
+
+        resultado.innerHTML = `
+        <p>Tienes <strong>${contador}</strong> libros de <strong>${nombre}</strong>:</p>
+        <ul>
+            ${lista.map(t => `<li>${t}</li>`).join("")}
+        </ul>
+    `;
+        mostrarPestaña('p-tabla');
+    }
+
+
+
+
+
+    async function cargarSelects() {
+
+        // Selects del formulario CREAR
+        await cargarSelect("autor", "autores");
+        await cargarSelect("editorial", "editoriales");
+
+        // Selects del formulario EDITAR
+        //await cargarSelect("edit-autor", "autores");
+        //await cargarSelect("edit-editorial", "editoriales");
+    }
+
+    function cancelarEdicion() {
+
+        // Ocultar formulario de editar
+        document.getElementById("form-editar").style.display = "none";
+
+        // Mostrar tabla
+        mostrarPestaña('p-tabla');
+
+        // Limpiar campos del formulario de editar
+        document.getElementById("edit-id").value = "";
+        document.getElementById("edit-titulo").value = "";
+        document.getElementById("edit-paginas").value = "";
+        document.getElementById("edit-estado").value = "";
+        document.getElementById("edit-formato").value = "";
+        document.getElementById("edit-autor").value = "";
+        document.getElementById("edit-editorial").value = "";
+        document.getElementById("edit-sagaTipo").value = "autoconclusivo";
+        document.getElementById("edit-sagaOrden").value = "";
+        document.getElementById("edit-puntuacion").value = "";
+        document.getElementById("edit-fecha-inicio").value = "";
+        document.getElementById("edit-fecha-fin").value = "";
+    }
+
+    async function cargarSelect(idSelect, endpoint) {
+        const res = await fetch(`${API}/${endpoint}`);
+        const datos = await res.json();
+
+        const select = document.getElementById(idSelect);
+        if (!select) return; // evita errores si el select no existe
+
+        select.innerHTML = "";
+
+        datos.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.name || item.titulo;
+            select.appendChild(option);
+        });
+    }
+
+
+    async function cargarLibros() {
+        const res = await fetch(`${API}/libros`);
+        const datos = await res.json();
+
+        const tbody = document.querySelector("#tabla-libros tbody");
+        tbody.innerHTML = "";
+
+        datos.forEach(libro => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${libro.titulo}</td>
+                <td>${libro.autor ? libro.autor.name : ""}</td>
+                <td>${libro.editorial ? libro.editorial.name: ""}</td>
+                <td>${libro.paginas ?? ""}</td>
+                <td>${libro.formato ?? ""}</td>
+                <td>${libro.estado ?? ""}</td>
+                <td>${libro.sagaTipo ?? ""}</td>
+                <td>${libro.sagaNombre ?? ""}</td>
+                <td>${libro.sagaOrden ?? ""}</td>
+                <td>${libro.puntuacion ?? ""}</td>
+                <td>${libro.fecha_inicio ?? ""}</td>
+                <td>${libro.fecha_fin ?? ""}</td>
+                <td>
+                    <button class="btn-accion" onclick="editarLibro(${libro.id}, '${libro.titulo}', ${libro.paginas}, ${libro.leido})">Editar</button>
+                    <button class="btn-accion" onclick="borrarLibro(${libro.id})">Borrar</button>
+                </td>
+            `;
+
+
+            tbody.appendChild(tr);
+        });
+
+    }
+
+
+    async function borrarLibro(id) {
+        if (!confirm("¿Seguro que quieres borrar este libro?")) return;
+
+        const res = await fetch(`${API}/libros/${id}`, {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            alert("Libro borrado");
+            cargarLibros();
+            mostrarCatalogoLibros();
+        } else {
+            alert("Error al borrar libro");
+        }
+
+    }
+    async function obtenerAutorId() {
+        const nombre = document.getElementById("autor").value.trim();
+
+        // Buscar si existe
+        const res = await fetch(`${API}/autores`);
+        const autores = await res.json();
+
+        const existente = autores.find(a =>
+            a.name.toLowerCase() === nombre.toLowerCase()
+        );
+
+        if (existente) return existente.id;
+
+        // Crear si no existe
+        const crear = await fetch(`${API}/autores`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nombre })
+        });
+
+        const nuevo = await crear.json();
+        return nuevo.id;
+    }
+    async function obtenerEditorialId() {
+        const nombre = document.getElementById("editorial").value.trim();
+
+        const res = await fetch(`${API}/editoriales`);
+        const editoriales = await res.json();
+
+        const existente = editoriales.find(e =>
+            e.name.toLowerCase() === nombre.toLowerCase()
+        );
+
+        if (existente) return existente.id;
+
+        const crear = await fetch(`${API}/editoriales`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nombre })
+        });
+
+        const nuevo = await crear.json();
+        return nuevo.id;
+    }
+    async function obtenerAutorIdEditar() {
+        const nombre = document.getElementById("edit-autor").value.trim();
+
+        const res = await fetch(`${API}/autores`);
+        const autores = await res.json();
+
+        const existente = autores.find(a =>
+            a.name.toLowerCase() === nombre.toLowerCase()
+        );
+
+        if (existente) return existente.id;
+
+        const crear = await fetch(`${API}/autores`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nombre })
+        });
+
+        const nuevo = await crear.json();
+        return nuevo.id;
+    }
+
+    async function obtenerEditorialIdEditar() {
+        const nombre = document.getElementById("edit-editorial").value.trim();
+
+        const res = await fetch(`${API}/editoriales`);
+        const editoriales = await res.json();
+
+        const existente = editoriales.find(e =>
+            e.name.toLowerCase() === nombre.toLowerCase()
+        );
+
+        if (existente) return existente.id;
+
+        const crear = await fetch(`${API}/editoriales`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nombre })
+        });
+
+        const nuevo = await crear.json();
+        return nuevo.id;
+    }
+
+
+    async function crearLibro() {
+        const fechaInicio = document.getElementById("fecha-inicio").value;
+        const fechaFin = document.getElementById("fecha-fin").value;
+        let portadaBase64 =window.portadaBase64Auto || null;
+        const archivo = document.getElementById("portada").files[0];
+
+
+        if (archivo) {
+            portadaBase64 = await convertirImagenABase64(archivo);
+        }
+
+        const cuerpo = {
+            portadaDTO: portadaBase64,
+            tituloDTO: document.getElementById("titulo").value,
+            paginasDTO: parseInt(document.getElementById("paginas").value) || null,
+            estadoDTO: document.getElementById("estado").value,
+            formatoDTO: document.getElementById("formato").value,
+            autorIdDTO: await obtenerAutorId(),
+            editorialIdDTO: await obtenerEditorialId(),
+            sagaTipoDTO: document.getElementById("sagaTipo").value,
+            sagaNombreDTO: document.getElementById("sagaNombre").value,
+            sagaOrdenDTO: parseInt(document.getElementById("sagaOrden").value),
+            puntuacionDTO: document.getElementById("puntuacion").value || null,
+            fecha_inicioDTO: fechaInicio === "" ? null : fechaInicio,
+            fecha_finDTO: fechaFin === "" ? null : fechaFin
+        };
+
+        const res = await fetch(`${API}/libros`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(cuerpo)
+        });
+
+        if (res.ok) {
+            alert("Libro creado correctamente");
+            await cargarLibros();
+            mostrarCatalogoLibros();
+
+        } else {
+            alert("Error al crear libro");
+        }
+        mostrarPestaña("p-tabla");
+
+        document.getElementById("portada").value = ""
+        document.getElementById("titulo").value = "";
+        document.getElementById("paginas").value = "";
+        document.getElementById("estado").value = "pendiente";
+        document.getElementById("formato").value = "tapa blanda";
+        document.getElementById("autor").value = "";
+        document.getElementById("editorial").value = "";
+        document.getElementById("sagaTipo").value = "autoconclusivo";
+        document.getElementById("sagaNombre").value = "";
+        document.getElementById("sagaOrden").value = "";
+        document.getElementById("puntuacion").value = "";
+        document.getElementById("fecha-inicio").value = "";
+        document.getElementById("fecha-fin").value = "";
+
+    }
+
+
+    async function editarLibro(id) {
+        // 1. Cambiar a la pestaña de añadir/editar
+        mostrarPestaña('p-add');
+
+        // 2. Cambiar el título y el botón
+        document.getElementById("form-crear").style.display = "none";
+        document.getElementById("form-editar").style.display = "block";
+
+        const btn = document.getElementById("btn-guardar-cambios");
+        btn.onclick = () => guardarCambios(id);
+        document.getElementById("btn-cancelar-edicion").onclick = cancelarEdicion;
+
+        // Obtener datos del libro
+        const res = await fetch(`${API}/libros/${id}`);
+        const libro = await res.json();
+        let portadaBase64 = libros.find(l => l.id === id)?.portada || null;
+
+        // Si viene portada automática del ISBN
+        if (window.portadaBase64Auto) {
+            portadaBase64 = window.portadaBase64Auto;
+        }
+
+        document.getElementById("edit-portada").addEventListener("change", async (e) => {
+            const archivo = e.target.files[0];
+            if (archivo) {
+                const base64 = await convertirImagenABase64(archivo);
+                document.getElementById("edit-portada-preview").src = base64;
+            }
+        });
+
+
+        //await cargarSelect("edit-autor", "autores");
+       // await cargarSelect("edit-editorial", "editoriales");
+        document.getElementById("edit-portada-preview").src=libro.portada || "";
+        document.getElementById("edit-id").value = libro.id;
+        document.getElementById("edit-titulo").value = libro.titulo;
+        document.getElementById("edit-paginas").value = libro.paginas;
+        document.getElementById("edit-estado").value = libro.estado;
+        document.getElementById("edit-puntuacion").value = libro.puntuacion ?? "";
+        document.getElementById("edit-formato").value=libro.formato ?? "tapa blanda";
+        document.getElementById("edit-autor").value = libro.autor?.name ?? "";
+        document.getElementById("edit-editorial").value = libro.editorial?.name ?? "";
+
+        document.getElementById("edit-sagaTipo").value=libro.sagaTipo ?? "autoconclusivo";
+        document.getElementById("edit-sagaNombre").value=libro.sagaNombre;
+        document.getElementById ("edit-sagaOrden").value=libro.sagaOrden ?? "";
+
+        document.getElementById("edit-fecha-inicio").value=libro.fecha_inicio ?? "";
+        document.getElementById("edit-fecha-fin").value=libro.fecha_fin ?? "";
+    }
+
+
+    async function guardarCambios(id) {
+        // 1. Obtener portada actual
+        let portadaBase64 = libros.find(l => l.id === id)?.portada || null;
+
+        // 2. Si el usuario sube una nueva imagen, convertirla
+        const archivo = document.getElementById("edit-portada").files[0];
+        if (archivo) {
+            portadaBase64 = await convertirImagenABase64(archivo);
+        }
+        if(!id) {
+            const id = document.getElementById("edit-id").value;
+        }
+        id=parseInt(id);
+        if(!id){
+            alert("Error el ID del libro no existe");
+            return;
+        }
+        const fechaInicio = document.getElementById("edit-fecha-inicio").value;
+        const fechaFin = document.getElementById("edit-fecha-fin").value;
+
+        const cuerpo = {
+            portadaDTO: portadaBase64,
+            tituloDTO: document.getElementById("edit-titulo").value,
+            paginasDTO: parseInt(document.getElementById("edit-paginas").value),
+            estadoDTO: document.getElementById("edit-estado").value,
+
+            autorIdDTO: await obtenerAutorIdEditar(),
+            editorialIdDTO: await obtenerEditorialIdEditar(),
+
+           sagaTipoDTO: document.getElementById("edit-sagaTipo").value,
+           sagaNombreDTO: document.getElementById("edit-sagaNombre").value || null,
+            sagaOrdenDTO: parseInt(document.getElementById("edit-sagaOrden").value) || null,
+            formatoDTO: document.getElementById("edit-formato").value,
+            puntuacionDTO: document.getElementById("edit-puntuacion").value || null,
+            fecha_inicioDTO: fechaInicio === "" ? null : fechaInicio,
+            fecha_finDTO: fechaFin === "" ? null : fechaFin
+        };
+
+
+        const res = await fetch(`${API}/libros/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cuerpo)
+        });
+
+        if (!res.ok) {
+            const error = await res.text();
+            console.error("Error del servidor:", error);
+            alert("Error al actualizar libro: " + error);
+            return;
+
+        }
+        document.getElementById("form-editar").style.display = "none";
+        document.getElementById("form-crear").style.display = "block";
+        //volverAModoCrear();
+        alert ("Libro actualizado");
+            // ⭐ Ir a la tabla de libros
+            mostrarPestaña('p-tabla');
+            cargarLibros();
+            mostrarCatalogoLibros();
+    }
+
+    function mostrarPestaña(id) {
+
+        // Ocultar todas las pestañas
+        document.querySelectorAll('.pestaña').forEach(p => p.classList.remove('visible'));
+
+        // Mostrar la pestaña seleccionada
+        document.getElementById(id).classList.add('visible');
+
+        // Quitar la clase active de todas las pestañas
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+        // Añadir active a la pestaña correspondiente
+        const tabButton = document.querySelector(`[data-tab="${id}"]`);
+        if (tabButton) tabButton.classList.add('active');
+
+        // ⭐ SI EL USUARIO ABRE LA PESTAÑA "AÑADIR LIBRO", VOLVER A MODO CREAR
+        if (id === "p-add") {
+            volverAModoCrear();
+        }
+        if (id=== "p-libros"){
+            mostrarCatalogoLibros();
+        }
+
+
+    }
+    function volverAModoCrear() {
+        // Mostrar formulario de crear
+        document.getElementById("form-crear").style.display = "block";
+
+        // Ocultar formulario de editar
+        document.getElementById("form-editar").style.display = "none";
+
+        // Restaurar título
+        document.getElementById("titulo-form").textContent = "Añadir libro";
+
+        // Restaurar botón
+        const btn = document.getElementById("btn-guardar");
+        btn.textContent = "Añadir libro";
+        btn.onclick = crearLibro;
+
+        // Limpiar campos si quieres
+        // document.getElementById("form-crear").reset();
+    }
+
+    document.getElementById("buscador").addEventListener("input", filtrarTabla);
+
+    function filtrarTabla() {
+        const texto = document.getElementById("buscador").value.toLowerCase();
+        const filas = document.querySelectorAll("#tabla-libros tbody tr");
+
+        filas.forEach(fila => {
+            const contenido = fila.textContent.toLowerCase();
+            fila.style.display = contenido.includes(texto) ? "" : "none";
+        });
+    }
+
+
+    async function convertirURLaBase64(url) {
+        const res = await fetch(url);
+        const blob = await res.blob();
+
+        return new Promise(resolve => {
+            const lector = new FileReader();
+            lector.onloadend = () => resolve(lector.result);
+            lector.readAsDataURL(blob);
+        });
+    }
+
+
+    window.onload = () => {
+        cargarLibros();
+        mostrarPestaña('p-inicio');
+    };
+
+
+</script>
+
+
+</html>
